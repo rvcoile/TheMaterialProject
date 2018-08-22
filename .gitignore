@@ -1,0 +1,14 @@
+# ignore everything by default - except .gitignore
+*
+*.*
+!.gitignore
+*/*
+
+# # folders and files to be ignored by Git
+# SAVE/
+# CDF_PDF/
+# PhaseResults/
+# Samples/
+
+# track specific types of files
+!*.py
