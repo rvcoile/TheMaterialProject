@@ -17,6 +17,7 @@
 import pandas as pd
 import sys
 import os
+import shutil
 
 # distant function reads
 directory="C:/Users/rvcoile/Google Drive/Research/Codes/Python3.6/REF/rvcpy"
@@ -42,45 +43,54 @@ if __name__ == "__main__":
 	file="C:/Users/rvcoile/Google Drive/Research/Projects/Materials_Fire/ConcreteStrength_DataSet.xlsx"
 	sheet="Data"
 
-	# switches ifo intended functionality
-	SW_MaxEnt=True
-
-	##############
-	## HANDLING ##
-	##############
-
-	# read dataset
-	data=pd.read_excel(file,sheet)
-
-	# select sub-set
-	T=400 # [°C]
-	grouping=data.groupby('Temp')
-	Tspecific_data=grouping.get_group(T)
+	# list of temperatures to evaluate
+	Tlist=[100,200,300,400,500,600,700,800] # [°C]
 
 	############
 	## OUTPUT ##
 	############
 
-	if SW_MaxEnt:
+	## Handling ##
+	##############
+	## read dataset
+	data=pd.read_excel(file,sheet)
 
-		# arranging kfc values as pd.Series
+	## select sub-set
+	grouping=data.groupby('Temp')
+
+
+	## MaxEnt run for temperature field ##
+	######################################
+
+	for T in Tlist:
+
+		Tspecific_data=grouping.get_group(T)
+
+		## arranging kfc values as pd.Series
 		name='kfc [-]'
 		s_local=Tspecific_data[name];s_local.name=name # pd.Series format
 		s_local=s_local*100 # dim change : retention ratio => retention percentage (better for MaxEnt evaluation)
 
-		# printing of MaxEnt input file
+		## printing of MaxEnt input file
 		# target folder
-		print("\n## MaxEnt results will be saved in local worker directory. ##")
+		print("\n## MaxEnt results will be saved in folder created in local worker directory. ##")
 		u=input("Press ENTER to confirm, or provide path to alternative directory: ")
 		if u!='': 
 			if u[0]=="\"": targetdir=u[1:-1] # strips quotes from path
 			else: targetdir=u
-			print("\nMaxEnt output will be saved in ", targetdir)
 		else: targetdir=os.getcwd() # target directory MaxEnt input *.xlsx -- for current working directory use : os.getcwd()
+		# creation of subdir
+		subdir=str(T); dirpath=targetdir+'\\'+subdir
+		if os.path.exists(dirpath) and os.path.isdir(dirpath): # remove path and all its contents if it exists
+			 shutil.rmtree(dirpath)
+		os.mkdir(dirpath) # creates dir
+		print("\nMaxEnt output will be saved in ", dirpath)
+
+
 		# target filename
 		targetfilename='inputMaxEnt2018'
-		PrintMaxEnt(s_local,targetdir,targetfilename)
-		Print_DataFrame([Tspecific_data],targetdir+'/'+'RawData',[str(T)])
+		PrintMaxEnt(s_local,dirpath,targetfilename)
+		Print_DataFrame([Tspecific_data],dirpath+'/'+'RawData',[str(T)])
 
 		# MaxEnt calculation
 		# default values
@@ -89,10 +99,10 @@ if __name__ == "__main__":
 		xmax_printing=300
 		x_deltaprint=1
 		nProc=2
-		mlist=[3,4,5]
+		mlist=[4]
 		samples_rAlpha=10**3
 		# function evaluation
-		MaxEnt2018(targetdir,targetdir+'/'+targetfilename+'.xlsx',SW_Gaussian,nProc,mlist,samples_rAlpha,xmax_default,xmax_printing,x_deltaprint)
+		MaxEnt2018(dirpath,dirpath+'/'+targetfilename+'.xlsx',SW_Gaussian,nProc,mlist,samples_rAlpha,xmax_default,xmax_printing,x_deltaprint)
 
 	#############
 	## TESTING ##
