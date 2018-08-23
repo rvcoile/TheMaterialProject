@@ -44,7 +44,15 @@ if __name__ == "__main__":
 	sheet="Data"
 
 	# list of temperatures to evaluate
-	Tlist=[100,200,300,400,500,600,700,800] # [°C]
+	Tlist=[200,300,400,500,600,700,800] # [°C]
+
+	# target folder
+	print("\n## MaxEnt results will be saved in folder created in local worker directory. ##")
+	u=input("Press ENTER to confirm, or provide path to alternative directory: ")
+	if u!='': 
+		if u[0]=="\"": targetdir=u[1:-1] # strips quotes from path
+		else: targetdir=u
+	else: targetdir=os.getcwd() # target directory MaxEnt input *.xlsx -- for current working directory use : os.getcwd()
 
 	############
 	## OUTPUT ##
@@ -72,13 +80,6 @@ if __name__ == "__main__":
 		s_local=s_local*100 # dim change : retention ratio => retention percentage (better for MaxEnt evaluation)
 
 		## printing of MaxEnt input file
-		# target folder
-		print("\n## MaxEnt results will be saved in folder created in local worker directory. ##")
-		u=input("Press ENTER to confirm, or provide path to alternative directory: ")
-		if u!='': 
-			if u[0]=="\"": targetdir=u[1:-1] # strips quotes from path
-			else: targetdir=u
-		else: targetdir=os.getcwd() # target directory MaxEnt input *.xlsx -- for current working directory use : os.getcwd()
 		# creation of subdir
 		subdir=str(T); dirpath=targetdir+'\\'+subdir
 		if os.path.exists(dirpath) and os.path.isdir(dirpath): # remove path and all its contents if it exists
