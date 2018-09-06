@@ -12,3 +12,4 @@
 
 # track specific types of files
 !*.py
+!/reference
